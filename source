@@ -1,0 +1,162 @@
+local utf8 = {
+    ["A"] = 0x41,
+    ["B"] = 0x42,
+    ["C"] = 0x43,
+    ["D"] = 0x44,
+    ["E"] = 0x45,
+    ["F"] = 0x46,
+    ["G"] = 0x47,
+    ["H"] = 0x48,
+    ["I"] = 0x49,
+    ["J"] = 0x4A,
+    ["K"] = 0x4B,
+    ["L"] = 0x4C,
+    ["M"] = 0x4D,
+    ["N"] = 0x4E,
+    ["O"] = 0x4F,
+    ["P"] = 0x50,
+    ["Q"] = 0x51,
+    ["R"] = 0x52,
+    ["S"] = 0x53,
+    ["T"] = 0x54,
+    ["U"] = 0x55,
+    ["V"] = 0x56,
+    ["W"] = 0x57,
+    ["X"] = 0x58,
+    ["Y"] = 0x59,
+    ["Z"] = 0x5A,
+}
+
+function pressKey(key, times, delay)
+    key = string.upper(key)
+    for i = 1, tonumber(times) do
+        keypress(utf8[key])
+        wait(delay)
+        keypress(utf8[key])
+    end
+end
+
+function releaseKey(key, times, delay)
+    key = string.upper(key)
+    for i = 1, tonumber(times) do
+        keyrelease(utf8[key])
+        wait(delay)
+    end
+end
+
+function clickMouse(which, times, delay)
+    local clicks = {
+        ["1"] = mouse1click,
+        ["2"] = mouse2click
+    }
+    local clickfunc = clicks[which]
+    for i = 1, times do
+        clickfunc()
+        wait(delay)
+    end
+end
+
+
+-----done
+local replicated = game:GetService("ReplicatedStorage")
+local workspace = game:GetService("Workspace")
+local players = game:GetService("Players")
+local localPlayer = players.LocalPlayer
+local character = localPlayer.Character
+
+function jobtruck()
+    replicated.NetworkContainer.RemoteEvents.Job:FireServer("Truck") --job truck
+end
+
+function delete()
+    game:GetService("ReplicatedStorage").NetworkContainer.RemoteFunctions.Spawner:InvokeServer("Delete")
+end
+
+function teleportCar(CFrame)
+    local playerCar = game.Workspace.Vehicles[game.Players.LocalPlayer.Name .."sCar"]
+    workspace.Gravity = 5
+    playerCar:SetPrimaryPartCFrame(CFrame)
+    wait(4)
+    workspace.Gravity = 220
+end
+
+function teleportOrg(CFrame)
+    workspace.Gravity = 5
+    character:SetPrimaryPartCFrame(CFrame)
+    wait(4)
+    workspace.Gravity = 220
+end
+
+function firstep()
+    jobtruck()
+    wait(1)
+    local waypoint = workspace.Etc.Waypoint.Waypoint
+    local waypointCFrame = waypoint.CFrame
+    teleportOrg(waypointCFrame)
+    wait(1)
+    pressKey("E",1,0)
+    releaseKey("E",1,0)
+    secondstep()
+end
+
+function deltrailer()
+local workspace = game:GetService("Workspace")
+local vehicle = workspace.Vehicles.aremafc876sCar -- Mengambil objek mobil
+
+if vehicle and vehicle.Trailer1 then -- Periksa apakah objek mobil dan trailer1 ada
+    vehicle.Trailer1:Destroy() -- Menghapus trailer1
+    print("Trailer1 berhasil dihapus.")
+else
+    print("ggl")
+end
+
+-----done
+
+
+function secondstep()
+    local tujuan = workspace.Etc.Waypoint.Waypoint
+    local tujuanCFrame = tujuan.CFrame
+    local coorCFrame = CFrame.new(-50889.6602, 1037.86694, -86514.7969, 0.890994847, -0, -0.454013437, 0, 1, -0, 0.454013437, 0, 0.890994847)
+    local frame = coorCFrame
+    local rojodCFrame = CFrame.new(-50895.4102, 1013.42352, -86509.5391, 0.540293574, 0.0103272339, -0.8414132, 0.000330615439, 0.999921978, 0.0124850161, 0.8414765, -0.00702375825, 0.540248036)
+    local rojodframe = rojodCFrame
+    local jarakGeser = -5
+    
+    if tujuanCFrame == frame then
+        local spawner = workspace.Etc.Job.Truck.Spawner.Visual
+        local spawnerCFrame = spawner.CFrame
+        local posisiSaatIni = spawnerCFrame.Position 
+        local posisiBaru = posisiSaatIni + Vector3.new(0, 0, jarakGeser) 
+        local cframeBaru = CFrame.new(posisiBaru) 
+        teleportOrg(spawnerCFrame)
+        pressKey("F",1,1)
+        releaseKey("F",1,0)
+        wait(5)
+        teleportOrg(cframeBaru)
+        pressKey("E",1,1)
+        releaseKey("E",1,0)
+        deltrailer()        
+        wait(50)
+        teleportCar(rojodframe)
+        wait(4)
+        delete()
+        wait(1)
+        jobtruck()
+        wait(1)
+        teleportOrg(tujuanCFrame)
+        wait(4)
+        pressKey("E",1,0)
+        releaseKey("E",1,0)
+        secondstep()
+        print("Lokasicframe sama dengan lokasi!")
+    else
+        jobtruck()
+        pressKey("E",1,0)
+        releaseKey("E",1,0)
+        wait(1)
+        secondstep()
+        print("Lokasicframe tidak sama dengan lokasi.")
+    end
+end
+
+firstep()
